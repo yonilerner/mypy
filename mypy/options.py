@@ -229,6 +229,9 @@ class Options:
         # type analysis.
         self.warn_unreachable = False
 
+        # Report errors for code in unreachable branches
+        self.check_unreachable_code = True
+
         # Variable names considered True
         self.always_true: list[str] = []
 

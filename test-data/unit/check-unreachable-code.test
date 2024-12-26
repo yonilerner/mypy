@@ -1517,3 +1517,35 @@ x = 0  # not unreachable
 
 f2: Callable[[], NoReturn] = lambda: foo()
 x = 0  # not unreachable
+
+[case testCheckUnreachableAssertIncompatibleAssignment]
+x: str
+assert isinstance(x, int)
+y: int = '' # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+[builtins fixtures/isinstancelist.pyi]
+
+[case testCheckUnreachableConditionIncompatibleAssignment]
+x: str
+if isinstance(x, int):
+    y: int = '' # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+[builtins fixtures/isinstancelist.pyi]
+
+
+[case testCheckUnreachableAssertAttributeError]
+from typing import Optional
+class FieldType: pass
+class Model: pass
+class Foo(Model):
+    x: Optional[int]
+assert isinstance(Foo.x, FieldType)
+Foo.y # E: "Type[Foo]" has no attribute "y"
+[builtins fixtures/isinstancelist.pyi]
+[case testCheckUnreachableConditionAttributeError]
+from typing import Optional
+class FieldType: pass
+class Model: pass
+class Foo(Model):
+    x: Optional[int]
+if isinstance(Foo.x, FieldType):
+    Foo.y # E: "Type[Foo]" has no attribute "y"
+[builtins fixtures/isinstancelist.pyi]
