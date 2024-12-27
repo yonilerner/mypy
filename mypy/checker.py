@@ -474,11 +474,17 @@ class TypeChecker(NodeVisitor[None], CheckerPluginInterface):
                 with self.enter_partial_types(), self.binder.top_frame_context():
                     for d in self.tree.defs:
                         if self.binder.is_unreachable():
-                            if self.should_report_unreachable_issues() and not self.is_noop_for_reachability(d):
+                            if not self.should_report_unreachable_issues():
+                                if not self.should_check_unreachable_code():
+                                    break
+                                self.accept(d)
+                            elif not self.is_noop_for_reachability(d):
                                 self.msg.unreachable_statement(d)
-                            if not self.should_check_unreachable_code():
-                                break
-                        self.accept(d)
+                                if not self.should_check_unreachable_code():
+                                    break
+                                self.accept(d)
+                        else:
+                            self.accept(d)
 
                 assert not self.current_node_deferred
 
@@ -2935,6 +2941,23 @@ class TypeChecker(NodeVisitor[None], CheckerPluginInterface):
     # Statements
     #
 
+    # def visit_block(self, b: Block) -> None:
+    #     if b.is_unreachable:
+    #         # This block was marked as being unreachable during semantic analysis.
+    #         # It turns out any blocks marked in this way are *intentionally* marked
+    #         # as unreachable -- so we don't display an error.
+    #         self.binder.unreachable()
+    #         return
+    #     for s in b.body:
+    #         if self.binder.is_unreachable():
+    #             print(f'unreachable {self.should_report_unreachable_issues()} {not self.is_noop_for_reachability(s)}; {s}')
+    #             if self.should_report_unreachable_issues() and not self.is_noop_for_reachability(s):
+    #                 self.msg.unreachable_statement(s)
+    #             if not self.should_check_unreachable_code() and not self.should_report_unreachable_issues():
+    #                 break
+    #         else:
+    #             self.accept(s)
+
     def visit_block(self, b: Block) -> None:
         if b.is_unreachable:
             # This block was marked as being unreachable during semantic analysis.
@@ -2944,11 +2967,17 @@ class TypeChecker(NodeVisitor[None], CheckerPluginInterface):
             return
         for s in b.body:
             if self.binder.is_unreachable():
-                if self.should_report_unreachable_issues() and not self.is_noop_for_reachability(s):
+                if not self.should_report_unreachable_issues():
+                    if not self.should_check_unreachable_code():
+                        break
+                    self.accept(s)
+                elif not self.is_noop_for_reachability(s):
                     self.msg.unreachable_statement(s)
-                if not self.should_check_unreachable_code():
-                    break
-            self.accept(s)
+                    if not self.should_check_unreachable_code():
+                        break
+                    self.accept(s)
+            else:
+                self.accept(s)
 
     def should_report_unreachable_issues(self) -> bool:
         return (
@@ -2959,7 +2988,7 @@ class TypeChecker(NodeVisitor[None], CheckerPluginInterface):
         )
 
     def should_check_unreachable_code(self) -> bool:
-        return self.options.check_unreachable_code
+        return self.options.check_unreachable
 
     def is_noop_for_reachability(self, s: Statement) -> bool:
         """Returns 'true' if the given statement either throws an error of some kind

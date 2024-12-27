@@ -23,6 +23,7 @@ PER_MODULE_OPTIONS: Final = {
     "allow_untyped_globals",
     "always_false",
     "always_true",
+    "check_unreachable",
     "check_untyped_defs",
     "debug_cache",
     "disable_error_code",
@@ -230,7 +231,7 @@ class Options:
         self.warn_unreachable = False
 
         # Report errors for code in unreachable branches
-        self.check_unreachable_code = True
+        self.check_unreachable = False
 
         # Variable names considered True
         self.always_true: list[str] = []

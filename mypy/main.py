@@ -733,6 +733,13 @@ def process_options(
         group=untyped_group,
     )
     add_invertible_flag(
+        "--check-unreachable",
+        default=False,
+        strict_flag=True,
+        help="Type check unreachable code",
+        group=untyped_group,
+    )
+    add_invertible_flag(
         "--check-untyped-defs",
         default=False,
         strict_flag=True,
