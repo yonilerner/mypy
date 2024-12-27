@@ -2970,12 +2970,11 @@ class TypeChecker(NodeVisitor[None], CheckerPluginInterface):
                 if not self.should_report_unreachable_issues():
                     if not self.should_check_unreachable_code():
                         break
-                    self.accept(s)
                 elif not self.is_noop_for_reachability(s):
                     self.msg.unreachable_statement(s)
                     if not self.should_check_unreachable_code():
                         break
-                    self.accept(s)
+                self.accept(s)
             else:
                 self.accept(s)
 
